@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Funds
+{% endblock %}
+
+{% block main %}
+<form action="/funds" method = "post">
+    <div class="mb-3">
+        <select class="form-select mx-auto w-auto" name="action">
+            <option disabled selected>I want to:</option>
+            <option value = "deposit">Add Cash</option>
+            <option value = "withdraw">Withdraw Cash</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="form-control mx-auto w-auto" min="0" name="amount" placeholder="Amount" type="number">
+    </div>
+    <button class="btn btn-primary" type="submit">Confirm</button>
+</form>
+<tfoot>
+        <tr>
+            <td class="border-0 fw-bold text-end" colspan="3">Current Cash:</td>
+            <td class="border-0 text-end">{{ cash }}</td>
+        </tr>
+</tfoot>
+{% endblock %}
