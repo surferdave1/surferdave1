@@ -32,6 +32,14 @@ def index():
    
     return render_template("forecast.html" )
 
+@app.route("/forecast")
+@login_required
+def forecast():
+    user_id = session["user_id"]
+   
+    return render_template("forecast.html" )
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
