@@ -39,7 +39,27 @@ def forecast():
    
     return render_template("forecast.html" )
 
+@app.route("/about")
+@login_required
+def about():
+    user_id = session["user_id"]
+   
+    return render_template("about.html" )
+    #TODO!
 
+@app.route("/profile")
+@login_required
+def profile():
+    user_id = session["user_id"]
+   #todo
+    return render_template("profile.html" )
+
+@app.route("/contact")
+@login_required
+def contact():
+    user_id = session["user_id"]
+   #todo
+    return render_template("contact.html" )
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
