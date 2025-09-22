@@ -5,5 +5,22 @@
 {% endblock %}
 
 {% block main %}
+<h1>Forecast</h1>
+<p>Welcome to the Fish Forecast page! Here, you can find the latest information on fishing conditions, weather forecasts, and tips to help you make the most of your fishing trips.</p>
 
+{% if no_settings %}
+    <p><strong>No location settings found.</strong> Please visit the <a href="/settings">Settings</a> page to enter your location and date.</p>
+{% elif error %}
+    <p><strong>Error:</strong> {{ error }}</p>
+{% else %}
+    <h2>Weather Forecast</h2>
+    <div id="forecastDisplay">
+        <p><strong>Date:</strong> {{ date }}</p>
+        <p><strong>Location:</strong> {{ lat }}, {{ lng }}</p>
+        <p><strong>Condition:</strong> {{ condition }}</p>
+        <p><strong>Average Temperature (°F):</strong> {{ avgtemp_f }}</p>
+    </div>
+{% endif %}
+
+<p>For more detailed information and updates, please check back regularly or contact us through the Contact page.</p>
 {% endblock %}
