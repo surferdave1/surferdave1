@@ -2,13 +2,14 @@
     "python-envs.pythonProjects": [
         {
             "path": "sandbox/mario.py",
-            "envManager": "ms-python.python:venv",
+            "envManager": "ms-python.python:system",
             "packageManager": "ms-python.python:pip"
         },
         {
             "path": "fish_forecast/app.py",
-            "envManager": "ms-python.python:venv",
+            "envManager": "ms-python.python:system",
             "packageManager": "ms-python.python:pip"
         }
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }
