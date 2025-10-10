@@ -5,22 +5,84 @@
 {% endblock %}
 
 {% block main %}
-<h1>Forecast</h1>
-<p>Welcome to the Fish Forecast page! Here, you can find the latest information on fishing conditions, weather forecasts, and tips to help you make the most of your fishing trips.</p>
+<h1 class = "title">Know When to Cast</h1>
+<p class = "subtitle">Your Personalized Fishing Forecast Awaits.</p>
 
-{% if no_settings %}
-    <p><strong>No location settings found.</strong> Please visit the <a href="/settings">Settings</a> page to enter your location and date.</p>
-{% elif error %}
-    <p><strong>Error:</strong> {{ error }}</p>
-{% else %}
-    <h2>Weather Forecast</h2>
-    <div id="forecastDisplay">
-        <p><strong>Date:</strong> {{ date }}</p>
-        <p><strong>Location:</strong> {{ lat }}, {{ lng }}</p>
-        <p><strong>Condition:</strong> {{ condition }}</p>
-        <p><strong>Average Temperature (°F):</strong> {{ avgtemp_f }}</p>
+<!-- Container to center both forms -->
+<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
+  <!-- Species Form -->
+  
+  
+  <div id="fish_species" class="custom-dropdown">
+    <div style="margin-bottom: 20px;"></div>
+    <p>Select Target Species:</p>
+    <div class="dropdown-option" data-value="bass">
+      <img class="fish-icon-small" src="/static/images/bass.png" alt="Bass">
+      <span>Bass</span>
     </div>
-{% endif %}
+    <div class="dropdown-option" data-value="crappie">
+      <img class="fish-icon-small" src="/static/images/crappie.png" alt="Crappie">
+      <span>Crappie</span>
+    </div>
+    <div class="dropdown-option" data-value="muskie">
+      <img class="fish-icon-small" src="/static/images/muskie.png" alt="Muskie">
+      <span>Muskie</span>
+    </div>
+    <div class="dropdown-option" data-value="panfish">
+      <img class="fish-icon-small" src="/static/images/panfish.png" alt="Panfish">
+      <span>Panfish</span>
+    </div>
+    <div class="dropdown-option" data-value="pike">
+      <img class="fish-icon-small" src="/static/images/pike.png" alt="Pike">
+      <span>Pike</span>
+    </div>
+    <div class="dropdown-option" data-value="walleye">
+      <img class="fish-icon-small" src="/static/images/walleye.png" alt="Walleye">
+      <span>Walleye</span>
+    </div>
+    <div class="dropdown-option" data-value="trout">
+      <img class="fish-icon-small" src="/static/images/trout.png" alt="Trout">
+      <span>Trout</span>
+    </div>
+    <div class="dropdown-option" data-value="salmon">
+      <img class="fish-icon-small" src="/static/images/salmon.png" alt="Salmon">
+      <span>Salmon</span>
+    </div>
+    <div class="dropdown-option" data-value="catfish">
+      <img class="fish-icon-small" src="/static/images/catfish.png" alt="Catfish">
+      <span>Catfish</span>
+    </div>
+    <div class="dropdown-option" data-value="carp">
+      <img class="fish-icon-small" src="/static/images/carp.png" alt="Carp">
+      <span>Carp</span>
+    </div>
+  </div>
+
+  <!-- Location Form -->
+  <form id="locationForm" class="text-center">
+    <div class="form-floating mb-3" style="width: 18rem; gap: 2rem;">
+      <input type="text" class="form-control" id="location" required>
+      <label for="location">City, State</label>
+    </div>
+    <div class="mb-3">
+      <button type="submit" class="btn btn-primary">Forecast it!</button>
+    </div>
+    <div class="form-floating mb-3" style="width: 18rem;">
+      <p id="output" class="text-center"></p>
+    </div>
+    
+  </form>
+
+
+
+  <div id="result"></div> 
+  <div id="fish_forecast"></div>
+  
+</div>
+
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 <p>For more detailed information and updates, please check back regularly or contact us through the Contact page.</p>
 {% endblock %}

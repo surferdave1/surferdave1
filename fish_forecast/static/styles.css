@@ -11,7 +11,7 @@ nav .navbar-brand .blue
 }
 nav .navbar-brand .red
 {
-    color: #ea433b;
+    color: #e2d09f;
 }
 nav .navbar-brand .yellow
 {
@@ -21,3 +21,177 @@ nav .navbar-brand .green
 {
     color: #2e944b;
 }
+
+/* General Styles */
+
+/* Sectional Styles */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #3c4651;
+  color: beige;
+  background-image: url('/static/images/background.png');
+  /* ...other styles... */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+main {
+  flex: 1; /* This makes the main content take up all available space */
+}
+
+
+header {
+  background: #565b61;
+  color: rgb(0, 0, 0);
+  padding: 1rem;
+  text-align: center;
+}
+
+.search-bar {
+  margin-top: 0.5rem;
+}
+
+.search-bar input {
+  padding: 0.5rem;
+  width: 60%;
+  border: none;
+  border-radius: 4px;
+}
+
+.search-bar button {
+  padding: 0.5rem;
+  margin-left: 0.5rem;
+  border: none;
+  background: rgb(141, 141, 141);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.title {
+  margin-top: 0rem; /* or even 0 */
+  text-transform: uppercase;
+  color: beige;
+}
+.subtitle {
+  margin-bottom: 0rem; /* or even 0 */
+  color: beige;
+}
+
+.current-weather {
+  text-align: center;
+  padding: 1rem;
+}
+
+.weather-main img {
+  width: 80px;
+}
+
+.hourly-forecast, .weekly-forecast, .extra-info {
+  padding: 1rem;
+}
+
+.hourly-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+}
+
+.hour {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  min-width: 80px;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+th, td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+footer {
+  background: #eee;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+/* visual effects */
+
+.blur-bg {
+  background: rgba(60, 70, 81, 0.5); /* semi-transparent background */
+  backdrop-filter: blur(8px);         /* blurs whatever is behind */
+  -webkit-backdrop-filter: blur(8px); /* for Safari support */
+  border-radius: 8px;                 /* optional: rounded corners */
+  padding: 1rem;                      /* optional: spacing */
+  color: #fff;                        /* ensures text is readable */
+}
+.custom-dropdown {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 220px;
+  background: rgba(60, 70, 81, 0.8);
+  padding: 0.5rem;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.dropdown-option:hover {
+  background: rgba(83, 127, 190, 0.2);
+  scale: 1.05;
+  transition: 3ms;
+}
+
+.dropdown-option img {
+  margin-right: 0.5rem;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.dropdown-option.selected {
+  background: rgba(255, 200, 0, 0.4);
+}
+/* fish icon stles */
+
+.fish-icon {
+  max-width: 100%;
+  height: auto;
+}
+.fish-icon-small {
+  width: 50px;
+  height: auto;
+}
+.fish-icon-medium {
+  width: 100px;
+  height: auto;
+}
+.fish-icon-large {
+  width: 150px;
+} 

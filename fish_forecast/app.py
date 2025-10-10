@@ -1,27 +1,53 @@
+from __future__ import print_function
+import time
+import weatherapi
+from weatherapi.rest import ApiException
+from pprint import pprint
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-from helpers import apology, get_db_connection, login_required, get_weather, air_temp, wind_speed, pressure_trend, moon_phase, time_of_day, season
-from forecast import bass_fishing_quality
+from helpers import apology, get_db_connection, login_required, get_weather
+from bass import forecast_bass
+from carp import forecast_carp
+from catfish import forecast_catfish
+from crappie import forecast_crappie
+from panfish import forecast_panfish
+from pike import forecast_pike
+from muskie import forecast_muskie
+from salmon import forecast_salmon
+from trout import forecast_trout
+from walleye import forecast_walleye
 import requests
+from flask import abort
 
 weather_api_key = "12c96143c1c24894836214843252908"
+# Configure API key authorization: ApiKeyAuth
+configuration = weatherapi.Configuration()
+configuration.api_key['key'] = '12c96143c1c24894836214843252908'
+
 
 # Configure application
 app = Flask(__name__)
 
+# the following section was created with co-pilot, and customized by me to enable debug mode
+# Ensure templates reload when changed during development
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.jinja_env.auto_reload = True
+# Disable static file caching in development so CSS/JS changes show up
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+date = datetime.today().strftime('%Y-%m-%d')
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure SQLite3 connection
-#conn = sqlite3.connect("fish_forecast.db", check_same_thread=False)
-#conn.row_factory = sqlite3.Row
-#db = conn.cursor()
+# Helper available in templates to return a current timestamp for cache-busting in development
+app.jinja_env.globals['now_ts'] = lambda: int(time.time())
 
+
+# after_request was created with co-pilot to enable debug mode
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -37,94 +63,118 @@ def index():
     return render_template("forecast.html" )
 
 @app.route("/forecast")
-def forecast():
-    user_id = session.get("user_id")
-    if not user_id:
-        return "User not logged in", 401
+@login_required
 
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT latitude, longitude, timestamp
-            FROM user_locations
-            WHERE user_id = ?
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """, (user_id,))
-    result = cursor.fetchone()
+def weather_forecast():
 
-    if not result:
-        # No location settings found — show fallback message
-        return render_template("forecast.html", no_settings=True)
+    return render_template("forecast.html", )
 
-    lat, lng, _ = result
-    print(f"User {user_id} forecast request for lat ={lat}, lng={lng}")
+# /location_change was created with asssistance from co-pilot
+@app.route("/location_change", methods=["GET","POST"])
+@login_required
+def location_change():
+    # Ensure POST data (location) is JSON
+    if not request.is_json:
+        return jsonify({"error": "Invalid input, JSON expected"}), 400
 
-    weather_data = get_weather(lat, lng, weather_api_key)
+    data = request.get_json()
+    location = data.get("location")
+    fish_species = data.get("fish_species")
+    print(f"Location: {location}, Fish Species: {fish_species}")
+
+    if not location:
+        return jsonify({"error": "Location is required"}), 400
+
+    
+    weather_data = get_weather(location, weather_api_key)
     if not weather_data:
-        return render_template("forecast.html", error="Weather data unavailable")
+        return jsonify({"error": "Failed to fetch weather data"}), 502  
+    # unpack the returned values
+    
+    keys = [
+        "date", "region", "country", "condition", "avgtemp_f", "maxwind_mph", "localtime",
+        "pressure_in", "wind_mph", "humidity", "moon_phase", "sunrise", "sunset",
+        "moonrise", "moonset", "current_hour_24hr", "current_time_24hr",
+        "sunset_time_24hr", "sunrise_time_24hr", "pressure_trend_output",
+        "max_pressure_in_output", "min_pressure_in_output",
+        "avg_morning_pressure_in", "avg_afternoon_pressure_in"
+    ]
 
-    forecast = weather_data["forecast"]["forecastday"][0]["day"]
-    condition = forecast["condition"]["text"]
-    avgtemp_f = forecast["avgtemp_f"]
-    local_date = weather_data["location"]["localtime"].split(" ")[0]
+    # Combine keys and values into a dictionary
+    data = dict(zip(keys, weather_data))
 
-    return render_template("forecast.html", lat=lat, lng=lng, date=local_date,
-                           condition=condition, avgtemp_f=avgtemp_f)
+    #(date, region, country, condition, avgtemp_f, maxwind_mph, localtime, pressure_in, wind_mph, humidity, moon_phase, sunrise, sunset, moonrise, moonset, current_hour_24hr,current_time_24hr, sunset_time_24hr, sunrise_time_24hr, pressure_trend_output, max_pressure_in_output, min_pressure_in_output, avg_morning_pressure_in, avg_afternoon_pressure_in) = weather_data
+    #print(f"Weather Data - Date: {date}, Region: {region}, Country: {country}, Condition: {condition}, Avg Temp: {avgtemp_f}, Max Wind: {maxwind_mph}, Local Time: {localtime}, Pressure: {pressure_in}, Wind: {wind_mph}, Humidity: {humidity}, Moon Phase: {moon_phase}, Sunrise: {sunrise}, Sunset: {sunset}, Moonrise: {moonrise}, Moonset: {moonset}, Current Hour: {current_hour_24hr}, Current Time: {current_time_24hr}, Sunset Time 24hr: {sunset_time_24hr}, Sunrise Time 24hr: {sunrise_time_24hr}, Pressure Trend: {pressure_trend_output}, Max Pressure: {max_pressure_in_output}, Min Pressure: {min_pressure_in_output}, Avg Morning Pressure: {avg_morning_pressure_in}, Avg Afternoon Pressure: {avg_afternoon_pressure_in}")
+    print(f"Weather Data - {data}")
+    # fish forecast
+    current_score = None
+    current_rating = None
+    #forecast_name = f"forecast_{fish_species.lower()}(date, avgtemp_f, condition, maxwind_mph,moon_phase, current_time_24hr, season, sunset_time_24hr, sunrise_time_24hr, pressure_trend_output)"
+    
+    forecast_func = globals().get(f"forecast_{fish_species.lower()}")
 
+    
+    current_score, current_rating, dawn_dusk_rating, morning_evening_rating = forecast_func(data)
+        
+    print(f"Current {fish_species} Forecast Score: {current_score}/100, Current Rating: {current_rating} ")
+         
+    print("Returning weather and forecast data to frontend")
+    return jsonify({
+        "date": data['date'],
+        "region": data['region'],
+        "country": data['country'],
+        "condition": data['condition'],
+        "avgtemp_f": data['avgtemp_f'],
+        "maxwind_mph": data['maxwind_mph'],
+        "localtime": data['localtime'],
+        "pressure_in": data['pressure_in'],
+        "wind_mph": data['wind_mph'],
+        "humidity": data['humidity'],
+        "moon_phase": data['moon_phase'],
+        "sunrise": data['sunrise'],
+        "sunset": data['sunset'],
+        "moonrise": data['moonrise'],
+        "moonset": data['moonset'],
+        "current_hour_24hr": data['current_hour_24hr'],
+        "current_time_24hr": data['current_time_24hr'],
+        "sunset_time_24hr": data['sunset_time_24hr'],
+        "sunrise_time_24hr": data['sunrise_time_24hr'],
+        "pressure_trend_output": data['pressure_trend_output'],
+        "max_pressure_in_output": data['max_pressure_in_output'],
+        "min_pressure_in_output": data['min_pressure_in_output'],
+        "avg_morning_pressure_in": data['avg_morning_pressure_in'],
+        "avg_afternoon_pressure_in": data['avg_afternoon_pressure_in'],
+        "fish_species": fish_species,
+        # forecast results
+        "current_score": current_score,
+        "current_rating": current_rating,
+        "dawn_dusk_rating": dawn_dusk_rating,
+        "morning_evening_rating": morning_evening_rating
+        
+         })
+    
+
+
+
+    
 @app.route("/about")
 @login_required
 def about():
     user_id = session["user_id"]
    
     return render_template("about.html" )
-    #TODO!
-
-
-@app.route("/settings", methods=["GET", "POST"])
-def settings():
-    user_id = session.get("user_id")
-    if not user_id:
-        return jsonify({"error": "User not logged in"}), 401
-
-    return render_template("settings.html")
     
-@app.route("/save_settings", methods=["POST"])
-@login_required
-def save_settings():
-    user_id = session["user_id"]
-    data = request.get_json()
-
-    lat = data.get("lat")
-    lng = data.get("lng")
-    date = data.get("date")
-
-    if not lat or not lng or not date:
-        return jsonify({"error": "All fields are required"}), 400
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO user_locations (user_id, latitude, longitude, timestamp)
-            VALUES (?, ?, ?, ?)
-        """, (user_id, lat, lng, date))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print("Database error:", e)
-        return jsonify({"error": "Database error"}), 500
-
-    return jsonify({"message": "Settings saved successfully!"})
 
 @app.route("/contact")
 @login_required
 def contact():
     user_id = session["user_id"]
-   #todo
+   
     return render_template("contact.html" )
 
 @app.route("/login", methods=["GET", "POST"])
+
+# login was from CCS50 finance project
 def login():
     session.clear()
     if request.method == "POST":
@@ -156,7 +206,7 @@ def logout():
     return redirect("/")
 
 
-
+# /register was from CS50 finance project
 @app.route("/register", methods=["GET", "POST"])
 def register():
     session.clear()
