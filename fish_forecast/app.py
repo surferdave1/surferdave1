@@ -22,10 +22,10 @@ from walleye import forecast_walleye
 import requests
 from flask import abort
 
-weather_api_key = "12c96143c1c24894836214843252908"
+weather_api_key = ""
 # Configure API key authorization: ApiKeyAuth
 configuration = weatherapi.Configuration()
-configuration.api_key['key'] = '12c96143c1c24894836214843252908'
+configuration.api_key['key'] = ''
 
 
 # Configure application
